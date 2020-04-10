@@ -1,9 +1,11 @@
 import 'package:flutter/material.dart';
+import 'package:news_feed/models/Article.dart';
+
 
 class NewsFeedContainer extends StatefulWidget {
-  String title;
+  String title, topic;
 
-  NewsFeedContainer(this.title);
+  NewsFeedContainer(this.title, this.topic);
 
   @override
   State<StatefulWidget> createState() {
@@ -13,15 +15,15 @@ class NewsFeedContainer extends StatefulWidget {
 
 class NewsFeedContainerState extends State<NewsFeedContainer> {
   PageController _pageController;
+  List<Article> articles;
 
   @override
   Widget build(BuildContext context) {
-    return Text(widget.title);
+    return Text(widget.title + ' ' + widget.topic);
   }
 
   @override
   void initState() {
-    _pageController = new PageController(initialPage: 0);
   }
 
   @override

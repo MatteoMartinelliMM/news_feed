@@ -4,7 +4,7 @@ import 'file:///C:/Users/matteoma/StudioProjects/news_feed/lib/screens/Favourite
 import 'file:///C:/Users/matteoma/StudioProjects/news_feed/lib/screens/NewsFeedContainer.dart';
 import 'package:provider/provider.dart';
 
-import 'models/News.dart';
+import 'models/NewsHolder.dart';
 
 void main() {
   runApp(MyApp());
@@ -16,13 +16,15 @@ class MyApp extends StatelessWidget {
   Widget build(BuildContext context) {
     SystemChrome.setEnabledSystemUIOverlays([]);
     return ChangeNotifierProvider(
-      create: (context) => News(),
-      child: MaterialApp(
-        title: 'Flutter Demo',
-        theme: ThemeData(
-          brightness: Theme.of(context).brightness,
+      create: (context) => NewsHolder(),
+      child: Consumer<NewsHolder>(
+        builder: (context, provider, child) => MaterialApp(
+          title: 'Flutter Demo',
+          theme: ThemeData(
+            brightness: Theme.of(context).brightness,
+          ),
+          home: HomeNews(title: 'News'),
         ),
-        home: HomeNews(title: 'News'),
       ),
     );
   }
@@ -46,6 +48,7 @@ class _HomeNewsState extends State<HomeNews>
   void initState() {
     mIndex = 0;
     topic = [
+      'Ultime notizie',
       'Business',
       'Entertainment',
       'General',
@@ -98,14 +101,13 @@ class _HomeNewsState extends State<HomeNews>
   void goToPage(int index) {
     setState(() {
       mIndex = index;
-      widget.title =
-          mIndex == 0 ? 'News' + ' ' + topic[_tabController.index] : 'Favoriti';
+      widget.title = mIndex == 0 ? 'News' : 'Favoriti';
     });
   }
 
   Widget buildPage(int mIndex) {
     return mIndex == 0
-        ? NewsFeedContainer(widget.title)
+        ? NewsFeedContainer(widget.title, topic[_tabController.index])
         : FavouriteNews(widget.title);
   }
 
