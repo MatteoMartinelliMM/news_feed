@@ -3,10 +3,18 @@ import 'package:news_feed/Services/Api.dart';
 import 'package:news_feed/models/Article.dart';
 
 class NewsHolder extends ChangeNotifier {
+
+  List<Article> _articles = [];
+
   NewsHolder() {
+    Api().getHeaderLines().then((value) => articles = value);
+    notifyListeners();
   }
 
-  final List<Article> _articles = [];
+  getByCategory(String category) {
+    Api().getNewByCategory(category).then((value) => articles = value);
+    notifyListeners();
+  }
 
   set articles(List<Article> articles) {
     assert(articles != null);
