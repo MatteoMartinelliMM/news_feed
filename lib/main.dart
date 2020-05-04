@@ -1,12 +1,19 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:hive/hive.dart';
+import 'package:hive_flutter/hive_flutter.dart';
+import 'package:news_feed/models/Article.dart';
+import 'package:news_feed/screens/NewsDetail.dart';
 import 'file:///C:/Users/matteoma/StudioProjects/news_feed/lib/screens/FavouriteNews.dart';
 import 'file:///C:/Users/matteoma/StudioProjects/news_feed/lib/screens/NewsFeedContainer.dart';
 import 'package:provider/provider.dart';
 
 import 'models/NewsHolder.dart';
 
-void main() {
+void main() async {
+  await Hive.initFlutter();
+
+  //Register the type adapter
   runApp(MyApp());
 }
 
@@ -24,6 +31,10 @@ class MyApp extends StatelessWidget {
             brightness: Theme.of(context).brightness,
           ),
           home: HomeNews(title: 'News'),
+          initialRoute: '/',
+          routes: {
+            NewsDetail.route: (context) => NewsDetail(),
+          },
         ),
       ),
     );
@@ -94,7 +105,8 @@ class _HomeNewsState extends State<HomeNews>
           BottomNavigationBarItem(
               icon: Icon(Icons.star_border), title: const Text('Favoriti'))
         ],
-      ), // This trailing comma makes auto-formatting nicer for build methods.
+      ),
+      // This trailing comma makes auto-formatting nicer for build methods.
     );
   }
 

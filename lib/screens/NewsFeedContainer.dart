@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:news_feed/components/NewsElement.dart';
 import 'package:news_feed/models/Article.dart';
 import 'package:news_feed/models/NewsHolder.dart';
+import 'package:news_feed/screens/NewsDetail.dart';
 import 'package:provider/provider.dart';
 
 class NewsFeedContainer extends StatefulWidget {
@@ -17,7 +18,6 @@ class NewsFeedContainer extends StatefulWidget {
 
 class NewsFeedContainerState extends State<NewsFeedContainer> {
   PageController _pageController;
-  List<Article> articles;
 
   @override
   Widget build(BuildContext context) {
@@ -28,7 +28,10 @@ class NewsFeedContainerState extends State<NewsFeedContainer> {
         return ListView.builder(
             itemCount: news.articles.length,
             itemBuilder: (context, position) {
-              return NewsElement(news.articles[position]);
+              return GestureDetector(
+                  onTap: () => Navigator.pushNamed(context, NewsDetail.route,
+                      arguments: news.articles[position]),
+                  child: NewsElement(article: news.articles[position]));
             });
     });
   }
