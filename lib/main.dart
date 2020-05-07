@@ -1,8 +1,11 @@
+import 'package:basic_utils/basic_utils.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:hive/hive.dart';
 import 'package:hive_flutter/hive_flutter.dart';
+import 'package:news_feed/NewsBloc.dart';
 import 'package:news_feed/models/Article.dart';
+import 'package:news_feed/screens/FullArticleWV.dart';
 import 'package:news_feed/screens/NewsDetail.dart';
 import 'file:///C:/Users/matteoma/StudioProjects/news_feed/lib/screens/FavouriteNews.dart';
 import 'file:///C:/Users/matteoma/StudioProjects/news_feed/lib/screens/NewsFeedContainer.dart';
@@ -22,20 +25,23 @@ class MyApp extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     SystemChrome.setEnabledSystemUIOverlays([]);
-    return ChangeNotifierProvider(
-      create: (context) => NewsHolder(),
-      child: Consumer<NewsHolder>(
-        builder: (context, provider, child) => MaterialApp(
-          title: 'Flutter Demo',
-          theme: ThemeData(
-            brightness: Theme.of(context).brightness,
-          ),
-          home: HomeNews(title: 'News'),
-          initialRoute: '/',
-          routes: {
-            NewsDetail.route: (context) => NewsDetail(),
-          },
+    return MultiProvider(
+      providers: [
+        Provider<NewsBloc>(
+          create: (_) => NewsBloc(),
+        )
+      ],
+      child: MaterialApp(
+        title: 'Flutter Demo',
+        theme: ThemeData(
+          brightness: Theme.of(context).brightness,
         ),
+        home: HomeNews(title: 'News'),
+        initialRoute: '/',
+        routes: {
+          NewsDetail.route: (context) => NewsDetail(),
+          FullArticeWV.route: (context) => FullArticeWV()
+        },
       ),
     );
   }
@@ -68,7 +74,8 @@ class _HomeNewsState extends State<HomeNews>
       'Sports',
       'Technology'
     ];
-    _tabController = new TabController(length: topic.length, vsync: this);
+    _tabController =
+        new TabController(length: Categories.values.length, vsync: this);
   }
 
   @override
@@ -119,17 +126,28 @@ class _HomeNewsState extends State<HomeNews>
 
   Widget buildPage(int mIndex) {
     return mIndex == 0
-        ? NewsFeedContainer(widget.title, topic[_tabController.index])
+        ? NewsFeedContainer(
+            widget.title,
+            Categories.values[mIndex]
+                .toString()
+                .substring(
+                    Categories.values[mIndex].toString().indexOf(".") + 1)
+                .toLowerCase())
         : FavouriteNews(widget.title);
   }
 
   List<Widget> buildTabs() {
     List<Tab> topicsTab = new List();
-    topic.forEach((e) => topicsTab.add(new Tab(text: e)));
+    Categories.values.forEach((e) => topicsTab.add(new Tab(
+        text: StringUtils.capitalize(
+            e.toString().substring(e.toString().indexOf('.') + 1)))));
     return topicsTab;
   }
 
   void updateNewsFeedPage(int value) {
-    goToPage(mIndex);
+    if (_tabController.indexIsChanging) {
+      final bloc = Provider.of<NewsBloc>(context, listen: false);
+      bloc.changeCategory(_tabController.index);
+    }
   }
 }

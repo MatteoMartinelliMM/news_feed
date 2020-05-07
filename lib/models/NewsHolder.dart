@@ -12,7 +12,7 @@ class NewsHolder extends ChangeNotifier {
   }
 
   getByCategory(String category) {
-    Api().getNewByCategory(category).then((value) => articles = value);
+    Api().getNewByCategory(category: category).then((value) => articles = value);
     notifyListeners();
   }
 

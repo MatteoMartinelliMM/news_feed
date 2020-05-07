@@ -5,6 +5,7 @@ import 'dart:io';
 import 'package:dio/dio.dart';
 import 'package:dio_flutter_transformer/dio_flutter_transformer.dart';
 import 'package:dio_http_cache/dio_http_cache.dart';
+import 'package:flutter/cupertino.dart';
 import 'package:http/http.dart' as http;
 import 'package:news_feed/models/Article.dart';
 
@@ -15,10 +16,12 @@ class Api {
   final String categoryParams = 'category=';
   String country = 'country=it';
   String language = 'language=it';
+  final String sources = 'sources?';
   var client = null;
   final Dio dio = Dio();
+
   //final DioCacheManager dioCache =
-     // DioCacheManager(CacheConfig(baseUrl: baseUrl));
+  // DioCacheManager(CacheConfig(baseUrl: baseUrl));
 
   Api() {
     /*dio.options.baseUrl = baseUrl;
@@ -41,26 +44,29 @@ class Api {
     }));*/
   }
 
-  Future<List<Article>> getNewByCategory(String category) async {
-    var response = await dio.get(
-        baseUrl +
-            country +
-            '&' +
-            language +
-            '&' +
-            categoryParams +
-            category +
-            '&' +
-            apiKey,
-        options: buildCacheOptions(Duration(seconds: 30)));
+  Future<List<Article>> getNewByCategory({@required String category}) async {
+    var response = await http.get(
+      baseUrl +
+          topHeaderLines +
+          country +
+          '&' +
+          language +
+          '&' +
+          categoryParams +
+          category +
+          '&' +
+          apiKey,
+    );
     if (response.statusCode == 200) {
-      var jsonResponse = jsonDecode(response.data);
+      var jsonResponse = jsonDecode(response.body);
       List<dynamic> articleJson = jsonResponse['articles'];
       List<Article> article = new List();
-      articleJson.forEach((element) {
+      await articleJson.forEach((element) {
         article.add(Article.fromJson(element));
       });
-    }
+      return article;
+    } else
+      return new List();
   }
 
   Future<List<Article>> getHeaderLines() async {

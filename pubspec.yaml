@@ -27,6 +27,8 @@ dependencies:
   test: ^1.14.2
   hive: ^1.4.1+1
   hive_flutter: ^0.3.0+2
+  basic_utils: ^2.5.3
+  flutter_webview_plugin: ^0.3.11
 
   flutter:
     sdk: flutter
