@@ -4,18 +4,19 @@ import 'package:flutter/services.dart';
 import 'package:hive/hive.dart';
 import 'package:hive_flutter/hive_flutter.dart';
 import 'package:news_feed/NewsBloc.dart';
-import 'package:news_feed/models/Article.dart';
 import 'package:news_feed/screens/FullArticleWV.dart';
 import 'package:news_feed/screens/NewsDetail.dart';
-import 'file:///C:/Users/matteoma/StudioProjects/news_feed/lib/screens/FavouriteNews.dart';
-import 'file:///C:/Users/matteoma/StudioProjects/news_feed/lib/screens/NewsFeedContainer.dart';
+import 'package:news_feed/screens/NewsFeedContainer.dart';
+import 'package:news_feed/screens/SearchPage.dart';
+import 'package:news_feed/services/DbRepository.dart';
 import 'package:provider/provider.dart';
 
-import 'models/NewsHolder.dart';
+import 'model/Article.dart';
 
 void main() async {
   await Hive.initFlutter();
-
+  Hive.registerAdapter(ArticleAdapter());
+  await Hive.openBox<Article>(NewsBox);
   //Register the type adapter
   runApp(MyApp());
 }
@@ -25,6 +26,7 @@ class MyApp extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     SystemChrome.setEnabledSystemUIOverlays([]);
+    SystemChrome.setPreferredOrientations([DeviceOrientation.portraitUp]);
     return MultiProvider(
       providers: [
         Provider<NewsBloc>(
@@ -40,7 +42,8 @@ class MyApp extends StatelessWidget {
         initialRoute: '/',
         routes: {
           NewsDetail.route: (context) => NewsDetail(),
-          FullArticeWV.route: (context) => FullArticeWV()
+          FullArticeWV.route: (context) => FullArticeWV(),
+          SearchPage.route: (context) => SearchPage()
         },
       ),
     );
@@ -64,16 +67,6 @@ class _HomeNewsState extends State<HomeNews>
   @override
   void initState() {
     mIndex = 0;
-    topic = [
-      'Ultime notizie',
-      'Business',
-      'Entertainment',
-      'General',
-      'Health',
-      'Science',
-      'Sports',
-      'Technology'
-    ];
     _tabController =
         new TabController(length: Categories.values.length, vsync: this);
   }
@@ -88,10 +81,16 @@ class _HomeNewsState extends State<HomeNews>
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: PreferredSize(
-        preferredSize: Size.fromHeight(100.0),
+        preferredSize: Size.fromHeight(mIndex == 0 ? 100 : kToolbarHeight),
         child: AppBar(
-          leading: mIndex == 0 ? Icon(Icons.search) : null,
-          title: Center(child: Text(widget.title)),
+          centerTitle: true,
+          leading: mIndex == 0
+              ? IconButton(
+                  icon: Icon(Icons.search),
+                  onPressed: () =>
+                      Navigator.pushNamed(context, SearchPage.route))
+              : null,
+          title: Text(widget.title),
           bottom: mIndex == 0
               ? TabBar(
                   onTap: updateNewsFeedPage,
@@ -118,6 +117,8 @@ class _HomeNewsState extends State<HomeNews>
   }
 
   void goToPage(int index) {
+    final bloc = Provider.of<NewsBloc>(context, listen: false);
+    bloc.changeScreen(index);
     setState(() {
       mIndex = index;
       widget.title = mIndex == 0 ? 'News' : 'Favoriti';
@@ -125,15 +126,7 @@ class _HomeNewsState extends State<HomeNews>
   }
 
   Widget buildPage(int mIndex) {
-    return mIndex == 0
-        ? NewsFeedContainer(
-            widget.title,
-            Categories.values[mIndex]
-                .toString()
-                .substring(
-                    Categories.values[mIndex].toString().indexOf(".") + 1)
-                .toLowerCase())
-        : FavouriteNews(widget.title);
+    return NewsFeedContainer(widget.title);
   }
 
   List<Widget> buildTabs() {

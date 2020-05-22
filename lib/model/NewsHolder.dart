@@ -1,13 +1,14 @@
 import 'package:flutter/material.dart';
 import 'package:news_feed/Services/Api.dart';
-import 'package:news_feed/models/Article.dart';
+
+import 'Article.dart';
 
 class NewsHolder extends ChangeNotifier {
 
   List<Article> _articles = [];
 
   NewsHolder() {
-    Api().getHeaderLines().then((value) => articles = value);
+  //  Api().getHeaderLines().then((value) => articles = value);
     notifyListeners();
   }
 

@@ -1,12 +1,16 @@
 import 'dart:async';
 
+import 'package:hive/hive.dart';
+import 'package:news_feed/services/DbRepository.dart';
+
 import 'Services/Api.dart';
-import 'models/Article.dart';
+import 'model/Article.dart';
 
 String categoryName(Categories category) => category.toString().split('.').last;
 
 class NewsBloc {
   final Api _repository = Api();
+  final DbRepository _dbRepository = DbRepository();
 
   Categories _actualCategory = Categories.general;
   AppScreen _actualScreen = AppScreen.main;
@@ -26,11 +30,11 @@ class NewsBloc {
       new StreamController<AppScreen>.broadcast();
 
   NewsBloc() {
-    /*Hive.box<Article>(NewsBox).watch().forEach((element) {
+    Hive.box<Article>(NewsBox).watch().forEach((element) {
       print(element.toString());
       _manageArticles();
-    });*/
-    manageArticles();
+    });
+    _manageArticles();
   }
 
   changeCategory(int index) {
@@ -43,22 +47,27 @@ class NewsBloc {
   changeScreen(int index) {
     _actualScreen = AppScreen.values[index];
     _actualScreenController.sink.add(_actualScreen);
-    //_manageArticles();
+    _manageArticles();
   }
 
-  manageArticles() {
-    getNews();
+  _manageArticles() {
+    if (AppScreen.favorites == _actualScreen)
+      _articles.sink.add(_dbRepository.getArticles());
+    else
+      getNews();
   }
 
   getNews() async {
-    List<Article> response = _actualCategory == Categories.general
-        ? await _repository.getHeaderLines()
-        : await _repository.getNewByCategory(
-            category: categoryName(_actualCategory));
-    _articles.sink.add(response);
+    String requestCategory = _actualCategory == Categories.general
+        ? null
+        : categoryName(_actualCategory);
+    _repository
+        .getNewByCategory(category: requestCategory)
+        .then((response) => _articles.sink.add(response));
   }
 
   dispose() {
+    _screenController?.close();
     _articles?.close();
     _actualScreenController?.close();
   }
