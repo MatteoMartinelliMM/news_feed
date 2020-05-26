@@ -12,5 +12,13 @@ class DbRepository {
     return favoritesNews.values.toList();
   }
 
+  List<Article> searchArticle(String title) {
+    return favoritesNews.values
+        .toList()
+        .where((element) =>
+            element.title.toLowerCase().startsWith(title.toLowerCase()))
+        .toList();
+  }
+
   watch() => favoritesNews.watch();
 }

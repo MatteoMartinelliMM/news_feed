@@ -42,7 +42,7 @@ class NewsElementState extends State<NewsElement> {
                 WebImage(
                   url: widget.article.urlToImage,
                   height: 200.0,
-                  radius: 16.0,
+                  radius: 10.0,
                 ),
                 Padding(
                     padding: EdgeInsets.all(8.0),

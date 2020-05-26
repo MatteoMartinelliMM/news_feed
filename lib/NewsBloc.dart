@@ -18,6 +18,8 @@ class NewsBloc {
   //Streams
   Stream<List<Article>> get articles => _articles.stream;
 
+  Stream<List<Article>> get searchArticles => _searchArticles.stream;
+
   Stream<Categories> get actualCategory => _screenController.stream;
 
   Stream<AppScreen> get actualScreen => _actualScreenController.stream;
@@ -25,6 +27,8 @@ class NewsBloc {
   final StreamController<Categories> _screenController =
       StreamController<Categories>.broadcast();
   final StreamController<List<Article>> _articles =
+      StreamController<List<Article>>.broadcast();
+  final StreamController<List<Article>> _searchArticles =
       StreamController<List<Article>>.broadcast();
   final StreamController<AppScreen> _actualScreenController =
       new StreamController<AppScreen>.broadcast();
@@ -66,8 +70,14 @@ class NewsBloc {
         .then((response) => _articles.sink.add(response));
   }
 
+  fetchSearchArticles(String title) {
+    if (title.isNotEmpty)
+      _searchArticles.sink.add(_dbRepository.searchArticle(title));
+  }
+
   dispose() {
     _screenController?.close();
+    _searchArticles?.close();
     _articles?.close();
     _actualScreenController?.close();
   }
